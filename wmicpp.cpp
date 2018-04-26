@@ -16,6 +16,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+
 	HRESULT hres;
 
 	// Step 1: --------------------------------------------------
@@ -24,14 +25,17 @@ int main(int argc, char **argv)
 	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
 	if (FAILED(hres))
 	{
+
 		cout << "Failed to initialize COM library. Error code = 0x"	<< hex << hres << endl;
 		return 1;                  // Program has failed.
+
 	}
 
 	// Step 2: --------------------------------------------------
 	// Set general COM security levels --------------------------
 
 	hres = CoInitializeSecurity(
+
 		NULL,
 		-1,                          // COM authentication
 		NULL,                        // Authentication services
@@ -41,15 +45,17 @@ int main(int argc, char **argv)
 		NULL,                        // Authentication info
 		EOAC_NONE,                   // Additional capabilities
 		NULL                         // Reserved
+
 	);
 
 
 	if (FAILED(hres))
 	{
-		cout << "Failed to initialize security. Error code = 0x"
-			<< hex << hres << endl;
+
+		cout << "Failed to initialize security. Error code = 0x" << hex << hres << endl;
 		CoUninitialize();
 		return 1;                    // Program has failed.
+
 	}
 
 	// Step 3: ---------------------------------------------------
@@ -58,18 +64,21 @@ int main(int argc, char **argv)
 	IWbemLocator *pLoc = NULL;
 
 	hres = CoCreateInstance(
+
 		CLSID_WbemLocator,
 		0,
 		CLSCTX_INPROC_SERVER,
-		IID_IWbemLocator, (LPVOID *)&pLoc);
+		IID_IWbemLocator, (LPVOID *)&pLoc
+
+	);
 
 	if (FAILED(hres))
 	{
-		cout << "Failed to create IWbemLocator object."
-			<< " Err code = 0x"
-			<< hex << hres << endl;
+
+		cout << "Failed to create IWbemLocator object."	<< " Err code = 0x"	<< hex << hres << endl;
 		CoUninitialize();
 		return 1;                 // Program has failed.
+
 	}
 
 	// Step 4: -----------------------------------------------------
@@ -81,6 +90,7 @@ int main(int argc, char **argv)
 	// the current user and obtain pointer pSvc
 	// to make IWbemServices calls.
 	hres = pLoc->ConnectServer(
+
 		_bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
 		NULL,                    // User name. NULL = current user
 		NULL,                    // User password. NULL = current
@@ -89,15 +99,17 @@ int main(int argc, char **argv)
 		0,                       // Authority (for example, Kerberos)
 		0,                       // Context object
 		&pSvc                    // pointer to IWbemServices proxy
+
 	);
 
 	if (FAILED(hres))
 	{
-		cout << "Could not connect. Error code = 0x"
-			<< hex << hres << endl;
+
+		cout << "Could not connect. Error code = 0x" << hex << hres << endl;
 		pLoc->Release();
 		CoUninitialize();
 		return 1;                // Program has failed.
+
 	}
 
 	cout << "Connected to ROOT\\CIMV2 WMI namespace" << endl;
@@ -107,6 +119,7 @@ int main(int argc, char **argv)
 	// Set security levels on the proxy -------------------------
 
 	hres = CoSetProxyBlanket(
+
 		pSvc,                        // Indicates the proxy to set
 		RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
 		RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
@@ -115,15 +128,18 @@ int main(int argc, char **argv)
 		RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
 		NULL,                        // client identity
 		EOAC_NONE                    // proxy capabilities
+
 	);
 
 	if (FAILED(hres))
 	{
+
 		cout << "Could not set proxy blanket. Error code = 0x" << hex << hres << endl;
 		pSvc->Release();
 		pLoc->Release();
 		CoUninitialize();
 		return 1;               // Program has failed.
+
 	}
 
 	// Step 6: --------------------------------------------------
@@ -132,17 +148,18 @@ int main(int argc, char **argv)
 	// For example, get the name of the operating system
 	IEnumWbemClassObject* pEnumerator = NULL;
 	hres = pSvc->ExecQuery(
+		
 		bstr_t("WQL"),
 		bstr_t("SELECT * FROM Win32_OperatingSystem"),
 		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
 		NULL,
-		&pEnumerator);
+		&pEnumerator
+
+	);
 
 	if (FAILED(hres))
 	{
-		cout << "Query for operating system name failed."
-			<< " Error code = 0x"
-			<< hex << hres << endl;
+		cout << "Query for operating system name failed."<< " Error code = 0x" << hex << hres << endl;
 		pSvc->Release();
 		pLoc->Release();
 		CoUninitialize();
@@ -157,8 +174,7 @@ int main(int argc, char **argv)
 
 	while (pEnumerator)
 	{
-		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1,
-			&pclsObj, &uReturn);
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
 
 		if (0 == uReturn)
 		{
