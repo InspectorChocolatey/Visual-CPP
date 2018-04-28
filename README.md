@@ -1,1 +1,2 @@
-# Visual-CPP
+# *Win32 API:*
+    https://msdn.microsoft.com/en-us/library/aa383688(v=vs.85).aspx
